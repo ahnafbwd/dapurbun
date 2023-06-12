@@ -197,7 +197,7 @@ class _ConfirmationOrderPageState extends State<ConfirmationOrderPage> {
                                     TextField(
                                       controller: lokasiPengantaranController,
                                       decoration: const InputDecoration(
-                                          labelText: 'Lokasi Pengantaran',
+                                          labelText: 'Lokasi ',
                                           floatingLabelStyle:
                                               TextStyle(color: Colors.green),
                                           hintStyle:
