@@ -21,6 +21,7 @@ class _MenuPageState extends State<MenuPage> {
   }
   final String url = "https://dapurbun.000webhostapp.com/API/produk/menu/menu";
   final String foto = "https://dapurbun.000webhostapp.com/image/";
+  
   Future getproduk() async {
     String fixurl = "$url$menu.php";
     var response = await http.get(Uri.parse(fixurl));

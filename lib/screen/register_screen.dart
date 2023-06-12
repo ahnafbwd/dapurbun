@@ -217,7 +217,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     sendDataToAPI();
                   },
                   child: const Text(
-                    'Login',
+                    'Daftar',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

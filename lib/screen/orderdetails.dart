@@ -2,7 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
+
+import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 
 class OrderDetailPage extends StatefulWidget {
   final String idpemesanan;
@@ -45,14 +48,14 @@ class OrderDetailPage extends StatefulWidget {
 class _OrderDetailPageState extends State<OrderDetailPage> {
   List<Map<String, dynamic>> rincianPesanan = [];
   bool isLoading = true;
-
+/* 
   @override
   void initState() {
     super.initState();
     fetchData();
-  }
+  } */
 
-  Future<void> fetchData() async {
+  /* Future<void> fetchData() async {
     try {
       const url =
           'https://dapurbun.000webhostapp.com/API/pesanan/tampilrincian.php';
@@ -109,7 +112,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         ),
       );
     }
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -132,91 +135,215 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Card(
-          margin: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'Detail Pesanan',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+        child: Column(children: [
+          Card(
+            margin: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'Detail Pesanan',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-              ),
-              ListTile(
-                title: Text('Kode Pesanan: ${widget.kodepesanan}'),
-                subtitle: Text('Tanggal Booking: ${widget.tanggalbooking}'),
-              ),
-              ListTile(
-                title: Text('Waktu Booking: ${widget.waktubooking}'),
-                subtitle: Text('Total Pesanan: ${widget.totalpesanan}'),
-              ),
-              ListTile(
-                title: Text('Catatan: ${widget.catatan}'),
-                subtitle: Text('Nama Penerima: ${widget.namapenerima}'),
-              ),
-              ListTile(
-                title: Text(
-                    'Nomor Telepon Penerima: ${widget.nomerteleponpenerima}'),
-                subtitle:
-                    Text('Alamat Pengantaran: ${widget.alamatpengantaran}'),
-              ),
-              ListTile(
-                title: Text('Biaya Pengantaran: ${widget.biayapengantaran}'),
-                subtitle: Text('Total Pembayaran: ${widget.totalpembayaran}'),
-              ),
-              ListTile(
-                title: Text('Status Pesanan: ${widget.statuspesanan}'),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'Rincian Pesanan',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                ListTile(
+                  title: Text('Kode Pesanan: ${widget.kodepesanan}'),
+                  subtitle: Text('Tanggal Booking: ${widget.tanggalbooking}'),
                 ),
-              ),
-              isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: rincianPesanan.length,
-                      itemBuilder: (context, index) {
-                        final rincian = rincianPesanan[index];
-                        final List<dynamic> nama = rincian['nama_produk'];
-                        final List<dynamic> photos = rincian['foto_produk'];
-                        final List<dynamic> harga = rincian['harga_produk'];
-                        final List<dynamic> jumlah = rincian['jumlah_produk'];
-                        return Card(
-                          elevation: 2,
-                          child: SizedBox(
-                            child: ListTile(
-                              title: Text(
-                                  'Nama Produk: ${rincian['nama_produk']}'),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      'Harga Produk: ${rincian['harga_produk']}'),
-                                  Text(
-                                      'Jumlah Produk: ${rincian['jumlah_produk']}'),
-                                ],
-                              ),
+                ListTile(
+                  title: Text('Waktu Booking: ${widget.waktubooking}'),
+                  subtitle: Text('Total Pesanan: ${widget.totalpesanan}'),
+                ),
+                ListTile(
+                  title: Text('Catatan: ${widget.catatan}'),
+                  subtitle: Text('Nama Penerima: ${widget.namapenerima}'),
+                ),
+                ListTile(
+                  title: Text(
+                      'Nomor Telepon Penerima: ${widget.nomerteleponpenerima}'),
+                  subtitle:
+                      Text('Alamat Pengantaran: ${widget.alamatpengantaran}'),
+                ),
+                ListTile(
+                  title: Text('Biaya Pengantaran: ${widget.biayapengantaran}'),
+                  subtitle: Text('Total Pembayaran: ${widget.totalpembayaran}'),
+                ),
+                ListTile(
+                  title: Text('Status Pesanan: ${widget.statuspesanan}'),
+                ),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Card(
+              elevation: 2,
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Pembayaran Dapat Dilakukan Pada:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.black,
                             ),
                           ),
-                        );
-                      },
+                        ],
+                      ),
                     ),
-            ],
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Melalui Bank:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 2,)
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Bank BRI : ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 2,),
+                              Text(
+                                '32189023188',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.black,
+                                ),
+                            ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Bank BCA : ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 2,),
+                              Text(
+                                '100129732489',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Melalui E-Wallet:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 2,)
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Shopeepay : ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 2,),
+                              Text(
+                                '2190873091738',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+            child: const Text(
+              'Kirim Bukti Pembayaran',
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onPressed: () {
+              String phoneNumber =
+                  '6281934342238'; // Nomor telepon yang ingin Anda tuju
+              String message =
+                  'Halo, dengan CS Dapur Bunda?'; // Pesan yang ingin Anda kirim
+
+              final link = WhatsAppUnilink(
+                phoneNumber: phoneNumber,
+                text: message,
+              );
+
+              launch('$link');
+            },
+          ),
+          const SizedBox(height: 12,)
+        ]),
       ),
     );
   }
