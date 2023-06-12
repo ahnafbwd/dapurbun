@@ -1,177 +1,341 @@
+import 'package:dapurbun/screen/orderdetails.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class OrderPage extends StatelessWidget {
+class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
 
   @override
+  State<OrderPage> createState() => _OrderPageState();
+}
+
+class _OrderPageState extends State<OrderPage> {
+  List<dynamic> pemesananData = [];
+  String idUser = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchOrders();
+  }
+
+  Future<void> fetchOrders() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      idUser = prefs.getString('iduser') ?? '';
+    });
+
+    Uri url = Uri.parse(
+        'https://dapurbun.000webhostapp.com/API/pesanan/tampilpesanan.php?id_user=$idUser');
+    final response = await http.get(url);
+
+    // Memeriksa status response
+    if (response.statusCode == 200) {
+      // Mengubah response body menjadi list data pemesanan
+      var data = jsonDecode(response.body);
+      setState(() {
+        pemesananData = data['data'];
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pesanan'),
-      ),
-      body: ListView.builder(
-        itemCount: orders.length,
-        itemBuilder: (context, index) {
-          final order = orders[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        order.kodePesanan,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        order.tanggalPesanan,
-                        style: const TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Jumlah Item: ${order.jumlahItem}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Item: ${order.item}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Status Pesanan: ${order.statusPesanan}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Keterangan: ${order.keterangan}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const Text(
-                        'Total Pembayaran:',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Rp ${order.totalPembayaran}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+    if (pemesananData.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            'Tidak ada data dalam riwayat pesanan',
+            style: TextStyle(fontSize: 16.0),
+          ),
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Pesanan',
+            style: TextStyle(
+              fontStyle: FontStyle.normal,
+              color: Colors.green,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
-          );
-        },
-      ),
-    );
+          ),
+          elevation: 0,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView.builder(
+            itemCount: pemesananData.length,
+            itemBuilder: (context, index) {
+              final pemesanan = pemesananData[index];
+              final idpemesanan = pemesanan['id_pemesanan'];
+              final idrincianPesanan = pemesanan['id_rincian_pesanan'];
+              final idpembayaran = pemesanan['id_pembayaran'];
+              final kodepesanan = pemesanan['kode_pesanan'];
+              final tanggalbooking = pemesanan['tanggal_booking'];
+              final waktubooking = pemesanan['waktu_booking'];
+              final totalpesanan = pemesanan['total_pesanan'];
+              final catatan = pemesanan['catatan'];
+              final namapenerima = pemesanan['nama_penerima'];
+              final nomerteleponpenerima = pemesanan['nomer_telepon_penerima'];
+              final alamatpengantaran = pemesanan['alamat_pengantaran'];
+              final biayapengantaran = pemesanan['biaya_pengantaran'];
+              final totalpembayaran = pemesanan['total_pembayaran'];
+              final statuspesanan = pemesanan['status_pesanan'];
+
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OrderDetailPage(
+                                  idpemesanan: idpemesanan,
+                                  idrincianPesanan: idrincianPesanan,
+                                  idpembayaran: idpembayaran,
+                                  kodepesanan: kodepesanan,
+                                  tanggalbooking: tanggalbooking,
+                                  waktubooking: waktubooking,
+                                  totalpesanan: totalpesanan,
+                                  catatan: catatan,
+                                  namapenerima: namapenerima,
+                                  nomerteleponpenerima: nomerteleponpenerima,
+                                  alamatpengantaran: alamatpengantaran,
+                                  biayapengantaran: biayapengantaran,
+                                  totalpembayaran: totalpembayaran,
+                                  statuspesanan: statuspesanan
+                                ),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            elevation: 4,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 8, 10, 8),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              '$kodepesanan',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.normal,
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  '$tanggalbooking',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  ' $waktubooking',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          side: const BorderSide(
+                                              color: Colors.black12,
+                                              width: 1.0),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      const Text(
+                                                        'Nama Penerima : ',
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 4,
+                                                      ),
+                                                      Text(
+                                                        '$namapenerima',
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 4,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      const Text(
+                                                        'Nomer Telepon Penerima : ',
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 4,
+                                                      ),
+                                                      Text(
+                                                        '$nomerteleponpenerima',
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      const Text(
+                                                        'Alamat Pengantaran : ',
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 4,
+                                                      ),
+                                                      Text(
+                                                        '$alamatpengantaran',
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        "Status : ",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87),
+                                      ),
+                                      Text(
+                                        "$statuspesanan",
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(10, 6, 10, 12),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        "Total Pembayaran",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87),
+                                      ),
+                                      Text(
+                                        "$totalpembayaran",
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ))
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
   }
 }
-
-
-class Order {
-  final String kodePesanan;
-  final String tanggalPesanan;
-  final int jumlahItem;
-  final String item;
-  final String statusPesanan;
-  final String keterangan;
-  final double totalPembayaran;
-
-  Order({
-    required this.kodePesanan,
-    required this.tanggalPesanan,
-    required this.jumlahItem,
-    required this.item,
-    required this.statusPesanan,
-    required this.keterangan,
-    required this.totalPembayaran,
-  });
-}
-
-List<Order> orders = [
-  Order(
-    kodePesanan: 'GOJ12345',
-    tanggalPesanan: '5 Juni 2023',
-    jumlahItem: 3,
-    item: 'Item 1, Item 2, Item 3',
-    statusPesanan: 'Dalam Proses',
-    keterangan: 'Pesanan sedang diproses',
-    totalPembayaran: 150000,
-  ),
-  Order(
-    kodePesanan: 'GOJ67890',
-    tanggalPesanan: '4 Juni 2023',
-    jumlahItem: 2,
-    item: 'Item 4, Item 5',
-    statusPesanan: 'Selesai',
-    keterangan: 'Pesanan telah selesai',
-    totalPembayaran: 100000,
-  ),
-  Order(
-    kodePesanan: 'GOJ12348',
-    tanggalPesanan: '2 Juni 2023',
-    jumlahItem: 3,
-    item: 'Item 1, Item 2, Item 3',
-    statusPesanan: 'Dalam Proses',
-    keterangan: 'Pesanan sedang diproses',
-    totalPembayaran: 150000,
-  ),
-  Order(
-    kodePesanan: 'GOJ67899',
-    tanggalPesanan: '1 Juni 2023',
-    jumlahItem: 2,
-    item: 'Item 4, Item 5',
-    statusPesanan: 'Selesai',
-    keterangan: 'Pesanan telah selesai',
-    totalPembayaran: 100000,
-  ),
-  Order(
-    kodePesanan: 'GOJ12343',
-    tanggalPesanan: '9 Juni 2023',
-    jumlahItem: 3,
-    item: 'Item 1, Item 2, Item 3',
-    statusPesanan: 'Dalam Proses',
-    keterangan: 'Pesanan sedang diproses',
-    totalPembayaran: 150000,
-  ),
-  Order(
-    kodePesanan: 'GOJ67894',
-    tanggalPesanan: '8 Juni 2023',
-    jumlahItem: 2,
-    item: 'Item 4, Item 5',
-    statusPesanan: 'Selesai',
-    keterangan: 'Pesanan telah selesai',
-    totalPembayaran: 100000,
-  ),
-];

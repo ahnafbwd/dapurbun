@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const MyHomePage(),
         '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
+        '/register': (context) => const RegisterPage(),
         '/onboarding': (context) =>
             const OnboardingScreen(), // Ganti dengan halaman utama aplikasi Anda
       },

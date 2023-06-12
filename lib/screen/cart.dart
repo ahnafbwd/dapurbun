@@ -195,6 +195,19 @@ class _CartPageState extends State<CartPage> {
     } else {
       final double totalHarga = calculateTotalPrice();
       return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Keranjang',
+            style: TextStyle(
+              fontStyle: FontStyle.normal,
+              color: Colors.green,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          elevation: 0,
+        ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: RefreshIndicator(
@@ -203,19 +216,6 @@ class _CartPageState extends State<CartPage> {
                 refreshCartData, // Menjalankan refreshCartData saat melakukan gestur refresh
             child: Column(
               children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.fromLTRB(16, 44, 16, 16),
-                  child: const Text(
-                    'Keranjang',
-                    style: TextStyle(
-                      fontStyle: FontStyle.normal,
-                      color: Colors.green,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
                 Expanded(
                   child: ListView.builder(
                     itemCount: cartData.length,
@@ -314,6 +314,7 @@ class _CartPageState extends State<CartPage> {
 
                                           return SizedBox(
                                             child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
                                                 Row(
                                                   mainAxisAlignment:
@@ -496,7 +497,7 @@ class _CartPageState extends State<CartPage> {
           ),
         ),
         bottomNavigationBar: Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[

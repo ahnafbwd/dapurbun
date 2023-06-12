@@ -1,17 +1,59 @@
+// ignore_for_file: library_private_types_in_public_api
+
+import 'package:dapurbun/screen/personalinfo.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfilePage extends StatelessWidget {
-  final String profilePictureUrl = 'https://example.com/profile_picture.jpg';
-  final String username = 'Nama Pengguna';
-  final String phoneNumber = 'Nomor Telepon';
-  final String editProfileButtonLabel = 'Edit Profil';
-  final String addressButtonLabel = 'Alamat Tersimpan';
-  final String notificationButtonLabel = 'Pengaturan Notifikasi';
-  final String termsButtonLabel = 'Syarat dan Ketentuan';
-  final String reviewButtonLabel = 'Ulas Aplikasi Dapur Bunda';
-  final String logoutButtonLabel = 'Keluar';
-
+class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
+
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String iduser = '';
+  String namalengkap = '';
+  String jeniskelamin = '';
+  String tanggallahir = '';
+  String email = '';
+  String nomertelepon = '';
+  String password = '';
+
+  Future<void> getDataFromSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      iduser = prefs.getString('iduser') ?? '';
+      namalengkap = prefs.getString('namalengkap') ?? '';
+      jeniskelamin = prefs.getString('jeniskelamin') ?? '';
+      tanggallahir = prefs.getString('tanggallahir') ?? '';
+      email = prefs.getString('email') ?? '';
+      nomertelepon = prefs.getString('nomertelepon') ?? '';
+      password = prefs.getString('password') ?? '';
+    });
+  }
+
+  Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('iduser', '');
+    prefs.setString('namalengkap', '');
+    prefs.setString('jeniskelamin', '');
+    prefs.setString('tanggallahir', '');
+    prefs.setString('email', '');
+    prefs.setString('nomertelepon', '');
+    prefs.setString('password', ''); // Hapus semua data di SharedPreferences
+  }
+
+  void loginFinished() async {
+    SharedPreferences sharedPref = await SharedPreferences.getInstance();
+    sharedPref.setBool("Finished login", false);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDataFromSharedPreferences();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,30 +68,31 @@ class ProfilePage extends StatelessWidget {
             children: [
               Container(
                 color: Colors.green,
-                child: const Padding(
-                  padding: EdgeInsets.all(16.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Row(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 40,
-                        backgroundImage: AssetImage('assets/profile_picture.jpg'),
+                        backgroundImage:
+                            AssetImage('assets/profile_picture.jpg'),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'John Doe',
-                            style: TextStyle(
+                            namalengkap,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
-                            'john.doe@example.com',
-                            style: TextStyle(
+                            email,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                             ),
@@ -66,25 +109,12 @@ class ProfilePage extends StatelessWidget {
                 title: const Text('Personal Information'),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  // Aksi ketika menu Personal Information diklik
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.payment),
-                title: const Text('Payment Methods'),
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  // Aksi ketika menu Payment Methods diklik
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  // Aksi ketika menu Settings diklik
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PersonalInformationPage(),
+                    ),
+                  );// Aksi ketika menu Personal Information diklik
                 },
               ),
               const Divider(),
@@ -92,7 +122,10 @@ class ProfilePage extends StatelessWidget {
                 leading: const Icon(Icons.logout),
                 title: const Text('Logout'),
                 onTap: () {
-                  // Aksi ketika menu Logout diklik
+                  logout();
+                  loginFinished();
+                  Navigator.pushReplacementNamed(
+                      context, '/login'); // Aksi ketika menu Logout diklik
                 },
               ),
             ],
